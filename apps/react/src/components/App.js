@@ -37,8 +37,12 @@ const initialState = {
 const reducer = (state, action) => {
   switch (action.type) {
     case "dataReceived":
-      return { ...state, questions: action.payload,         filterQuestions: state.questions
-,        status: "ready" };
+      return {
+        ...state,
+        questions: action.payload,
+        filterQuestions: state.questions,
+        status: "ready",
+      };
     case "dataFailed":
       return { ...state, status: "error" };
     case "start":
@@ -100,6 +104,12 @@ const reducer = (state, action) => {
           (action.payload === questionsLevelObj.hard &&
             state.questions.filter((question) => question.points === 30)),
       };
+    case "selectedQuestions":
+      return {
+        ...state,
+        status: "ready",
+        filterQuestions: state.questions.slice(0, action.payload).map((question) => question)
+      };
     default:
       throw new Error("action unknown");
   }
@@ -154,6 +164,7 @@ export default function App() {
             numQuestions={numQuestions}
             dispatch={dispatch}
             questionsLevel={questionsLevel}
+            questions={questions}
           />
         )}
         {status === "active" && (
@@ -179,6 +190,7 @@ export default function App() {
                 answer={answer}
                 index={index}
                 numQuestions={numQuestions}
+                highScore={highScore}
               />
             </footer>
           </Fragment>

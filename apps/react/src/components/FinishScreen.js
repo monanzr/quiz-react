@@ -12,6 +12,16 @@ function FinishScreen({ points, maxPossiblePoints, highScore, dispatch }) {
 
   const handleRestartButton = () => {
     dispatch({type: "restartQuiz"})
+    fetch("http://localhost:9000/highscore/1", {
+      method: "PUT",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ "highscore": highScore }),
+    })
+      .then((res) => res.json())
+      .catch((err) => dispatch({ type: "dataFailed" }))
   }
 
   return (

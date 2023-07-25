@@ -274,10 +274,25 @@ progress {
   padding: 0.8rem;
 }
 
-.level-wrapper {
+.level-wrapper, .selected-questions-wrapper {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   width: 100%;
-  margin-bottom: 5rem;
+  margin-bottom: 4rem;
   align-items: center;
+}
+
+.selected-questions {
+  display: block;
+  width: 13.7rem;
+  font-family: inherit;
+  color: inherit;
+  border: 2px solid var(--color-dark);
+  background-color: var(--color-dark);
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 8px;
+  padding: 0.7rem 2rem;
+  text-align: center;
+  font-size: 1.7rem;
 }
