@@ -83,6 +83,11 @@ h4 {
   margin-bottom: 2.4rem;
 }
 
+h5 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
 .start {
   display: flex;
   flex-direction: column;
@@ -142,6 +147,17 @@ progress {
 
 .btn-ui {
   float: right;
+}
+
+.btn-select {
+  border-radius: 8px;
+  padding: 0.7rem 2.4rem;
+  text-align: center;
+  font-size: 1.7rem;
+}
+
+.btn-select:not([disabled]):hover {
+  background-color: var(--color-dark);
 }
 
 .options {
@@ -256,4 +272,12 @@ progress {
 .counter * {
   font-size: inherit;
   padding: 0.8rem;
+}
+
+.level-wrapper {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 5rem;
+  align-items: center;
 }

@@ -11,30 +11,44 @@ import Progress from "./Progress";
 import FinishScreen from "./FinishScreen";
 import Timer from "./Timer";
 
-const SECS_PER_QUESTION = 30
+const SECS_PER_QUESTION = 30;
+
+const questionsLevelObj = {
+  all: "all",
+  easy: "easy",
+  medium: "medium",
+  hard: "hard",
+};
 
 const initialState = {
   questions: [],
 
-  // 'loading, 'error', 'reday', 'active', 'finished'
+  // 'loading, 'error', 'ready', 'active', 'finished'
   status: "loading",
   index: 0,
   answer: null,
   points: 0,
   highScore: 0,
-  secondsRemaining: 0
+  secondsRemaining: 0,
+  filterQuestions: [],
+  questionsLevel: questionsLevelObj.all,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case "dataReceived":
-      return { ...state, questions: action.payload, status: "ready" };
+      return { ...state, questions: action.payload,         filterQuestions: state.questions
+,        status: "ready" };
     case "dataFailed":
       return { ...state, status: "error" };
     case "start":
-      return { ...state, status: "active", secondsRemaining: state.questions.length * SECS_PER_QUESTION };
+      return {
+        ...state,
+        status: "active",
+        secondsRemaining: state.filterQuestions.length * SECS_PER_QUESTION,
+      };
     case "newAnswer":
-      const question = state.questions.at(state.index);
+      const question = state.filterQuestions.at(state.index);
       return {
         ...state,
         answer: action.payload,
@@ -53,7 +67,7 @@ const reducer = (state, action) => {
         status: "finish",
         highScore:
           state.points > state.highScore ? state.points : state.highScore,
-          secondsRemaining: 10
+        secondsRemaining: 10,
       };
     case "restartQuiz":
       return {
@@ -63,25 +77,63 @@ const reducer = (state, action) => {
         answer: null,
         points: 0,
         highScore: state.highScore,
-        secondsRemaining: 10
+        secondsRemaining: 10,
+        filterQuestions: [],
       };
-      case "tick":
-        return { ...state, secondsRemaining: state.secondsRemaining - 1,
-        status: state.secondsRemaining === 0 ? "finish" : state.status};
+    case "tick":
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? "finish" : state.status,
+      };
+    case "filteredQuestions":
+      return {
+        ...state,
+        status: "ready",
+        questionsLevel: action.payload,
+        filterQuestions:
+          (action.payload === questionsLevelObj.all && state.questions) ||
+          (action.payload === questionsLevelObj.easy &&
+            state.questions.filter((question) => question.points === 10)) ||
+          (action.payload === questionsLevelObj.medium &&
+            state.questions.filter((question) => question.points === 20)) ||
+          (action.payload === questionsLevelObj.hard &&
+            state.questions.filter((question) => question.points === 30)),
+      };
     default:
       throw new Error("action unknown");
   }
 };
 
 export default function App() {
-  const [{ questions, status, index, answer, points, highScore, secondsRemaining }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    {
+      questions,
+      status,
+      index,
+      answer,
+      points,
+      highScore,
+      secondsRemaining,
+      filterQuestions,
+      questionsLevel,
+    },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
-  const numQuestions = questions.length;
-  const maxPossiblePoints = questions.reduce(
+  console.log(
+    filterQuestions,
+    questionsLevel,
+    questionsLevel === questionsLevelObj.medium
+  );
+
+  const numQuestions = filterQuestions.length;
+  const maxPossiblePoints = filterQuestions.reduce(
     (prev, cur) => prev + cur.points,
     0
   );
+
+  console.log(filterQuestions);
 
   useEffect(() => {
     fetch("http://localhost:9000/questions")
@@ -98,7 +150,11 @@ export default function App() {
         {status === "loading" && <Loader />}
         {status === "error" && <Error />}
         {status === "ready" && (
-          <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
+          <StartScreen
+            numQuestions={numQuestions}
+            dispatch={dispatch}
+            questionsLevel={questionsLevel}
+          />
         )}
         {status === "active" && (
           <Fragment>
@@ -110,8 +166,7 @@ export default function App() {
               answer={answer}
             />
             <Question
-              questions={questions}
-              question={questions[index]}
+              question={filterQuestions[index]}
               dispatch={dispatch}
               answer={answer}
               points={points}

@@ -5,8 +5,6 @@ function Timer({dispatch, secondsRemaining}) {
   const mins = Math.floor(secondsRemaining/60)
   const seconds = secondsRemaining % 60
 
-  console.log(mins)
-
   useEffect(() => {
     const id = setInterval(()=> dispatch({ type: "tick"}), 1000)
 
